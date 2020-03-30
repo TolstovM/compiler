@@ -15,7 +15,7 @@ class Machine:
         self.operand_stack.insert(0, operand)
 
     def pop_operand(self):
-        return self.program.pop(0)
+        return self.operand_stack.pop(0)
 
     def get_next_code(self):
         code = self.program[self.instruction_pointer]
