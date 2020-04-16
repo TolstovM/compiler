@@ -1,22 +1,22 @@
 from machine import *
 
 program = [
-    'PUSH', 3,
-    'PUSH', 8,
-    'MUL',
+    'PUSH', 16,
+    'STORE', 'a',
     'PUSH', 10,
-    'PUSH', 8,
-    'PUSH', 2,
-    'DIV',
+    'STORE', 'b',
+    'LOAD', 'a',
+    'LOAD', 'b',
+    'ISGT',
+    'NOT',
+    'JUMP_IF', 30,
+    'LOAD', 'a',
+    'PUSH', 1,
     'SUB',
-    'PUSH', 3,
-    'MUL',
-    'ADD',
-    'PUSH', 42,
-    'ISEQ',
-    'PUSH', True,
-    'AND',
+    'STORE', 'a',
+    'LOAD', 'a',
     'FUNC', 'print', 1,
+    'JUMP', 8,
     'HALT'
 ]
 instruction_table = Machine.get_instruction_table()

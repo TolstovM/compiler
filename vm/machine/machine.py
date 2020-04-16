@@ -1,5 +1,7 @@
 from .instructionTable import InstructionTable
 from .instruction import Instruction
+from .context import Context
+import builtins
 
 
 class Machine:
@@ -9,6 +11,9 @@ class Machine:
         self.instruction_table = instruction_table
         self.instruction_pointer = 0
         self.operand_stack = []
+        self.context_stack = []
+        self.current_context = Context(-1)
+        self.context_stack.append(self.current_context)
         self._is_halted = False
 
     def push_operand(self, operand):
@@ -16,6 +21,14 @@ class Machine:
 
     def pop_operand(self):
         return self.operand_stack.pop(0)
+
+    def push_context(self, return_address):
+        self.current_context = Context(return_address)
+        self.context_stack.insert(0, self.current_context)
+
+    def pop_context(self):
+        self.context_stack.pop(0)
+        self.current_context = self.context_stack[0]
 
     def get_next_code(self):
         code = self.program[self.instruction_pointer]
@@ -40,6 +53,7 @@ class Machine:
     @classmethod
     def get_instruction_table(cls) -> InstructionTable:
         instruction_table = InstructionTable()
+        instruction_table.insert(Instruction('HALT', 0, cls.halt))
         instruction_table.insert(Instruction('PUSH', 1, cls.push))
         instruction_table.insert(Instruction('POP', 0, cls.pop))
         instruction_table.insert(Instruction('DUP', 0, cls.dup))
@@ -53,7 +67,17 @@ class Machine:
         instruction_table.insert(Instruction('ISEQ', 0, cls.is_equal))
         instruction_table.insert(Instruction('ISGT', 0, cls.is_greater))
         instruction_table.insert(Instruction('ISGE', 0, cls.is_greater_equal))
+        instruction_table.insert(Instruction('JUMP', 1, cls.jump))
+        instruction_table.insert(Instruction('JUMP_IF', 1, cls.jump_if))
+        instruction_table.insert(Instruction('LOAD', 1, cls.load))
+        instruction_table.insert(Instruction('STORE', 1, cls.store))
+        instruction_table.insert(Instruction('FUNC', 2, cls.call_builtin_func))
+        instruction_table.insert(Instruction('CALL', 1, cls.call))
+        instruction_table.insert(Instruction('RET', 0, cls.ret))
         return instruction_table
+
+    def halt(self, args):
+        self._is_halted = True
 
     def push(self, args):
         arg = args[0]
@@ -115,3 +139,45 @@ class Machine:
         rh = self.pop_operand()
         lh = self.pop_operand()
         self.push_operand(lh >= rh)
+
+    def jump(self, args):
+        new_ip = args[0]
+        self.instruction_pointer = new_ip
+
+    def jump_if(self, args):
+        new_ip = args[0]
+        condition = self.pop_operand()
+        if condition:
+            self.instruction_pointer = new_ip
+
+    def print_op(self, args):
+        print(self.pop_operand())
+
+    def load(self, args):
+        variable_name = args[0]
+        variable = self.current_context.get_variable(variable_name)
+        self.push_operand(variable)
+
+    def store(self, args):
+        variable_name = args[0]
+        variable = self.pop_operand()
+        self.current_context.set_variable(variable_name, variable)
+
+    def call_builtin_func(self, args):
+        func_name = args[0]
+        argv = args[1]
+        params = []
+        for i in range(argv):
+            params.append(self.pop_operand())
+        func = getattr(builtins, func_name)
+        self.push_operand(func(*params))
+
+    def call(self, args):
+        new_ip = args[0]
+        self.push_context(self.instruction_pointer)
+        self.instruction_pointer = new_ip
+
+    def ret(self, args):
+        new_ip = self.current_context.get_return_address()
+        self.pop_context()
+        self.instruction_pointer = new_ip
