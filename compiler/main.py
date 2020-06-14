@@ -1,17 +1,31 @@
 import os
 import grammar
+import compiler_utils
 
 
 def main():
     prog = '''
-    str = "Hello"
-    name = input("Input name: ")
-    print(str, name)
-    a = 2
-    b = 3 + a
-    r = a < b
+str = "Hello"
+name = input("Input name: ") // comment 
+print(str, name)
+a = 2
+b = 3 + a
+bool = a < b
+factorial = 1
+
+if a > 7 + b :  
+    a = 7
+         
+while g2 > g :
+    output(g2)  
+    c = a+b * (2 - 1) + 0
+    
+for i in range(1, number + 1) :
+    factorial = factorial * i
+
     '''
-    prog = grammar.parse(prog)
+
+    prog = grammar.parse(compiler_utils.close_blocks(prog))
     print(*prog.tree, sep=os.linesep)
 
 

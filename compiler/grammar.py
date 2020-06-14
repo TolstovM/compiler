@@ -54,26 +54,20 @@ def _make_parser():
     var_decl_inner = simple_assign | ident
     vars_decl = ident + var_decl_inner + pp.ZeroOrMore(COMMA + var_decl_inner)
 
-    assign = ident + ASSIGN.suppress() + expr #еще раз присвоение?
-    simple_stmt = assign | call #бред
+    assign = ident + ASSIGN.suppress() + expr
+    simple_stmt = assign | call
 
-    for_stmt_list0 = (pp.Optional(simple_stmt + pp.ZeroOrMore(COMMA + simple_stmt))).setName('stmt_list')
-    for_stmt_list = vars_decl | for_stmt_list0
-    for_cond = expr | pp.Group(pp.empty).setName('stmt_list')
-    for_body = stmt | pp.Group(SEMI).setName('stmt_list')
+    for_cond = ident + pp.Keyword("in").suppress() + call
 
-    if_ = pp.Keyword("if").suppress() + LPAR + expr + RPAR + stmt + pp.Optional(pp.Keyword("else").suppress() + stmt)
-    for_ = pp.Keyword("for").suppress() + LPAR + for_stmt_list + SEMI + for_cond + SEMI + for_stmt_list + RPAR + for_body
-    while_ = pp.Keyword("while").suppress() + LPAR + expr + RPAR + stmt
-    comp_op = LBRACE + stmt_list + RBRACE
+    if_ = pp.Keyword("if").suppress() + expr + pp.Keyword(":").suppress() + stmt_list + RBRACE
+    for_ = pp.Keyword("for").suppress() + for_cond + pp.Keyword(":").suppress() + stmt_list + RBRACE
+    while_ = pp.Keyword("while").suppress() + expr + pp.Keyword(":").suppress() + stmt_list + RBRACE
 
     stmt << (
-        if_ |
-        for_ |
-        while_ |
-        comp_op |
-        vars_decl + pp.lineEnd() |
-        simple_stmt + SEMI
+            if_ |
+            for_ |
+            while_ |
+            simple_stmt
     )
 
     stmt_list << (pp.ZeroOrMore(stmt + pp.ZeroOrMore(SEMI)))
