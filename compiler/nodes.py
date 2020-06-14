@@ -179,18 +179,18 @@ class WhileNode(StmtNode):
 
 
 class ForNode(StmtNode):
-    def __init__(self, init: Union[StmtNode, None], cond: Union[ExprNode, None],
-                 step: Union[StmtNode, None], body: Union[StmtNode, None],
+    def __init__(self, init: Union[StmtNode, None],
+                 for_in,
+                 body: Union[StmtNode, None],
                  row: Optional[int] = None, line: Optional[int] = None, **props):
         super().__init__(row=row, line=line, **props)
         self.init = init if init else _empty
-        self.cond = cond if cond else _empty
-        self.step = step if step else _empty
+        self.for_in = for_in
         self.body = body if body else _empty
 
     @property
     def childs(self) -> Tuple[AstNode, ...]:
-        return self.init, self.cond, self.step, self.body
+        return self.init, self.for_in, self.body
 
     def __str__(self) -> str:
         return 'for'
@@ -208,6 +208,20 @@ class StmtListNode(StmtNode):
 
     def __str__(self) -> str:
         return '...'
+
+
+class ListBodyNode(StmtNode):
+    def __init__(self, *exprs: StmtNode,
+                 row: Optional[int] = None, line: Optional[int] = None, **props):
+        super().__init__(row=row, line=line, **props)
+        self.exprs = exprs
+
+    @property
+    def childs(self) -> Tuple[StmtNode, ...]:
+        return self.exprs
+
+    def __str__(self) -> str:
+        return 'body'
 
 
 _empty = StmtListNode()
