@@ -52,7 +52,7 @@ def _make_parser():
 
     simple_assign = (ident + ASSIGN.suppress() + (expr | str_)).setName('assign')
     var_decl_inner = simple_assign | ident
-    vars_decl = ident + var_decl_inner + pp.ZeroOrMore(COMMA + var_decl_inner)
+    vars_decl = var_decl_inner + pp.ZeroOrMore(COMMA + var_decl_inner)
 
     assign = ident + ASSIGN.suppress() + expr
     simple_stmt = assign | call
@@ -62,11 +62,14 @@ def _make_parser():
     if_ = pp.Keyword("if").suppress() + expr + pp.Keyword(":").suppress() + stmt_list + RBRACE
     for_ = pp.Keyword("for").suppress() + for_cond + pp.Keyword(":").suppress() + stmt_list + RBRACE
     while_ = pp.Keyword("while").suppress() + expr + pp.Keyword(":").suppress() + stmt_list + RBRACE
+    def_ = pp.Keyword("def").suppress() + ident + LPAR + pp.Optional(ident + pp.ZeroOrMore(COMMA.suppress() + ident))\
+           + RPAR + pp.Keyword(":").suppress() + stmt_list + RBRACE
 
     stmt << (
             if_ |
             for_ |
             while_ |
+            def_ |
             simple_stmt
     )
 
