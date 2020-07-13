@@ -101,22 +101,6 @@ class StmtNode(ExprNode):
     pass
 
 
-class VarsDeclNode(StmtNode):
-    def __init__(self, vars_type: StmtNode, *vars_list: Tuple[AstNode, ...],
-                 row: Optional[int] = None, line: Optional[int] = None, **props):
-        super().__init__(row=row, line=line, **props)
-        self.vars_type = vars_type
-        self.vars_list = vars_list
-
-    @property
-    def childs(self) -> Tuple[ExprNode, ...]:
-        # return self.vars_type, (*self.vars_list)
-        return (self.vars_type, ) + self.vars_list
-
-    def __str__(self) -> str:
-        return 'var'
-
-
 class CallNode(StmtNode):
     def __init__(self, func: IdentNode, *params: Tuple[ExprNode],
                  row: Optional[int] = None, line: Optional[int] = None, **props):
@@ -176,6 +160,22 @@ class WhileNode(StmtNode):
 
     def __str__(self) -> str:
         return 'while'
+
+
+class DefNode(StmtNode):
+    def __init__(self, def_name: IdentNode, args: AstNode, stmt: StmtNode,
+                 row: Optional[int] = None, line: Optional[int] = None, **props):
+        super().__init__(row=row, line=line, **props)
+        self.def_name = def_name
+        self.args = args
+        self.stmt = stmt
+
+    @property
+    def childs(self) -> Tuple[AstNode, StmtNode]:
+        return self.args, self.stmt
+
+    def __str__(self) -> str:
+        return 'def ' + self.def_name.name
 
 
 class ForNode(StmtNode):

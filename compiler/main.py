@@ -1,6 +1,7 @@
 import os
 import grammar
 import compiler_utils
+from semantic import *
 
 
 def main():
@@ -20,13 +21,19 @@ while g2 > g :
     output(g2)  
     c = a+b * (2 - 1) + 0
     
-for i in range(1, number + 1) :
+for i in range(1, number + 1):
     factorial = factorial * i
+    
+def func(a):
+    a = a * 3
+    print(a + 5)
 
     '''
 
     prog = grammar.parse(compiler_utils.close_blocks(prog))
     print(*prog.tree, sep=os.linesep)
+    symb_table_builder = SemanticAnalyzer()
+    symb_table_builder.visit(prog)
 
 
 if __name__ == "__main__":

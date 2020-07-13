@@ -1,3 +1,4 @@
+# Закрытие блоков (символ конца блока - })
 def close_blocks(prog):
     lines = prog.split('\n')
     for l in range(0, len(lines) - 1):
